@@ -52,8 +52,8 @@ def get_total_pages_from_response(data: Dict[str, Any]) -> Optional[int]:
     """
 
     pagination = data.get("pagination") or {}
-    if "total_pages" in pagination:
-        return int(pagination["total_pages"])
+    if "totalPages" in pagination:
+        return int(pagination["totalPages"])
 
     # If we can't infer, return None and let the caller decide
     return None
