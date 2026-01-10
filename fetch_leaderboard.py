@@ -170,7 +170,8 @@ def download_all_pages(
     division: int = 1,
     scaled: int = 0,
     output_dir: str = "data",
-    rate_limit_seconds: float = 0.2,
+    rate_limit_min_seconds: float = 2.0,
+    rate_limit_max_seconds: float = 5.0,
     progress_bar: Optional[tqdm] = None,
 ) -> None:
     """
@@ -183,6 +184,8 @@ def download_all_pages(
       subsequent runs skip API calls entirely.
     
     Args:
+        rate_limit_min_seconds: Minimum wait time in seconds (for uniform distribution)
+        rate_limit_max_seconds: Maximum wait time in seconds (for uniform distribution)
         progress_bar: Optional tqdm progress bar for page-level progress
     """
     # Check cache for previously-known nonexistent combinations
@@ -272,8 +275,9 @@ def download_all_pages(
         if progress_bar is not None:
             progress_bar.update(1)
 
-        # Be polite to the API
-        time.sleep(rate_limit_seconds)
+        # Be polite to the API with randomized wait time
+        wait_time = random.uniform(rate_limit_min_seconds, rate_limit_max_seconds)
+        time.sleep(wait_time)
 
 
 if __name__ == "__main__":
