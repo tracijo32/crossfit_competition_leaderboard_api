@@ -294,6 +294,9 @@ Examples:
   
   # Download with custom output directory
   python fetch_leaderboard.py --year-start 2024 --year-end 2025 --division-start 1 --division-end 5 --output-dir ./my_data
+  
+  # Download only scaled option 0 (non-scaled)
+  python fetch_leaderboard.py --year-start 2025 --year-end 2025 --scaled-start 0 --scaled-end 0
         """
     )
     
@@ -322,6 +325,18 @@ Examples:
         help='End division (inclusive). Default: 50'
     )
     parser.add_argument(
+        '--scaled-start',
+        type=int,
+        default=0,
+        help='Start scaled option (inclusive). Default: 0'
+    )
+    parser.add_argument(
+        '--scaled-end',
+        type=int,
+        default=2,
+        help='End scaled option (inclusive). Default: 2'
+    )
+    parser.add_argument(
         '--output-dir',
         type=str,
         default=os.path.expanduser('~/data/crossfit_games_leaderboards'),
@@ -335,14 +350,18 @@ Examples:
         parser.error("--year-start must be <= --year-end")
     if args.division_start > args.division_end:
         parser.error("--division-start must be <= --division-end")
+    if args.scaled_start > args.scaled_end:
+        parser.error("--scaled-start must be <= --scaled-end")
     if args.division_start < 1:
         parser.error("--division-start must be >= 1")
+    if args.scaled_start < 0:
+        parser.error("--scaled-start must be >= 0")
     if args.year_start < 2011:
         print(f"Warning: Year {args.year_start} is before 2011 (first Open year). Continuing anyway...")
     
     years = range(args.year_start, args.year_end + 1)
     divisions = range(args.division_start, args.division_end + 1)
-    scaled_options = range(3)  # Keep scaled options as is: 0, 1, 2
+    scaled_options = range(args.scaled_start, args.scaled_end + 1)
     
     # Calculate total combinations for outer progress bar
     total_combinations = len(list(years)) * len(list(divisions)) * len(list(scaled_options))
@@ -350,7 +369,7 @@ Examples:
     print(f"Downloading leaderboard data:")
     print(f"  Years: {args.year_start} to {args.year_end} ({len(list(years))} years)")
     print(f"  Divisions: {args.division_start} to {args.division_end} ({len(list(divisions))} divisions)")
-    print(f"  Scaled options: 0, 1, 2 (3 options)")
+    print(f"  Scaled options: {args.scaled_start} to {args.scaled_end} ({len(list(scaled_options))} options)")
     print(f"  Total combinations: {total_combinations}")
     print(f"  Output directory: {args.output_dir}")
     print()
